@@ -23,7 +23,7 @@ Due to how this thing has been constructed (and network shenanigans), the standa
 
 ### Edits
 
-Lyra code which is edited is wrapped with `//@EditBegin` and `//@EditEnd`.
+Lyra code which is edited is wrapped with `//@EditBegin` and `//@EditEnd` except for log spamming code (those are set to `VeryVerbose`, ignore those).
 
 ### Other
 
