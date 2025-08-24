@@ -42,6 +42,11 @@ void ULyraPawnExtensionComponent::OnRegister()
 {
 	Super::OnRegister();
 
+	//@EditBegin-Ignore this
+	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): OnRegister"), *PawnName, *FString(__FUNCTION__));
+	//@EditEnd
+
 	const APawn* Pawn = GetPawn<APawn>();
 	ensureAlwaysMsgf((Pawn != nullptr), TEXT("LyraPawnExtensionComponent on [%s] can only be added to Pawn actors."), *GetNameSafe(GetOwner()));
 
@@ -57,6 +62,11 @@ void ULyraPawnExtensionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//@EditBegin-Ignore this
+	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Begin Play"), *PawnName, *FString(__FUNCTION__));
+	//@EditEnd
+
 	// Listen for changes to all features
 	BindOnActorInitStateChanged(NAME_None, FGameplayTag(), false);
 	
@@ -67,8 +77,15 @@ void ULyraPawnExtensionComponent::BeginPlay()
 
 void ULyraPawnExtensionComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	//@EditBegin-Ignore this
+	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): End Play"), *PawnName, *FString(__FUNCTION__));
+	//@EditEnd
+	
 	UninitializeAbilitySystem();
 	UnregisterInitStateFeature();
+
+	
 
 	Super::EndPlay(EndPlayReason);
 }
@@ -90,6 +107,11 @@ void ULyraPawnExtensionComponent::SetPawnData(const ULyraPawnData* InPawnData)
 		return;
 	}
 
+	//@EditBegin-Ignore this
+	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Setting pawn data"), *PawnName, *FString(__FUNCTION__));
+	//@EditEnd
+
 	PawnData = InPawnData;
 
 	Pawn->ForceNetUpdate();
@@ -107,14 +129,20 @@ void ULyraPawnExtensionComponent::InitializeAbilitySystem(ULyraAbilitySystemComp
 	check(InASC);
 	check(InOwnerActor);
 
+	//@EditBegin-Ignore this
+	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
+	//@EditEnd
+
 	if (AbilitySystemComponent == InASC)
 	{
+		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): ASC hasn't changed, returning"), *PawnName, *FString(__FUNCTION__));
 		// The ability system component hasn't changed.
 		return;
 	}
 
 	if (AbilitySystemComponent)
 	{
+		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Uninitializing ASC"), *PawnName, *FString(__FUNCTION__));
 		// Clean up the old ability system component.
 		UninitializeAbilitySystem();
 	}
@@ -134,18 +162,22 @@ void ULyraPawnExtensionComponent::InitializeAbilitySystem(ULyraAbilitySystemComp
 
 		if (ULyraPawnExtensionComponent* OtherExtensionComponent = FindPawnExtensionComponent(ExistingAvatar))
 		{
+			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Uninitializing the other extension components ASC"), *PawnName, *FString(__FUNCTION__));
 			OtherExtensionComponent->UninitializeAbilitySystem();
 		}
 	}
 
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Setting the new ASC and calling InitAbilityActorInfo"), *PawnName, *FString(__FUNCTION__));
 	AbilitySystemComponent = InASC;
 	AbilitySystemComponent->InitAbilityActorInfo(InOwnerActor, Pawn);
 
 	if (ensure(PawnData))
 	{
+		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Setting tag relationship mappings"), *PawnName, *FString(__FUNCTION__));
 		InASC->SetTagRelationshipMapping(PawnData->TagRelationshipMapping);
 	}
 
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Broadcasting ASC initialized event"), *PawnName, *FString(__FUNCTION__));
 	OnAbilitySystemInitialized.Broadcast();
 }
 
