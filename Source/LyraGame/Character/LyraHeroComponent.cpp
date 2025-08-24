@@ -213,6 +213,8 @@ void ULyraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* M
 			}
 		}
 	}
+
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Exit"), *PawnName, *FString(__FUNCTION__));
 }
 
 void ULyraHeroComponent::OnActorInitStateChanged(const FActorInitStateChangedParams& Params)
@@ -339,15 +341,15 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 					// This is where we actually bind and input action to a gameplay tag, which means that Gameplay Ability Blueprints will
 					// be triggered directly by these input actions Triggered events. 
 					TArray<uint32> BindHandles;
-					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding ability actions"), *PawnName, *FString(__FUNCTION__));
+					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding ability actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
 					LyraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
 
-					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding native actions"), *PawnName, *FString(__FUNCTION__));
-					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, /*bLogIfNotFound=*/ false);
-					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, /*bLogIfNotFound=*/ false);
-					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ false);
-					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, this, &ThisClass::Input_Crouch, /*bLogIfNotFound=*/ false);
-					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_AutoRun, ETriggerEvent::Triggered, this, &ThisClass::Input_AutoRun, /*bLogIfNotFound=*/ false);
+					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding native actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
+					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, /*bLogIfNotFound=*/ true);
+					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, /*bLogIfNotFound=*/ true);
+					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ true);
+					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, this, &ThisClass::Input_Crouch, /*bLogIfNotFound=*/ true);
+					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_AutoRun, ETriggerEvent::Triggered, this, &ThisClass::Input_AutoRun, /*bLogIfNotFound=*/ true);
 				}
 			}
 		}
@@ -390,7 +392,7 @@ void ULyraHeroComponent::AddAdditionalInputConfig(const ULyraInputConfig* InputC
 		{
 			//@EditBegin-Ignore this
 			const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding ability actions"), *PawnName, *FString(__FUNCTION__));
+			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding additional ability actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
 			//@EditEnd
 			LyraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
 		}
@@ -400,6 +402,10 @@ void ULyraHeroComponent::AddAdditionalInputConfig(const ULyraInputConfig* InputC
 void ULyraHeroComponent::RemoveAdditionalInputConfig(const ULyraInputConfig* InputConfig)
 {
 	//@TODO: Implement me!
+	//@EditBegin-Ignore this
+	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Removing additional config %s in unimplemented function"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
+	//@EditEnd
 }
 
 bool ULyraHeroComponent::IsReadyToBindInputs() const
