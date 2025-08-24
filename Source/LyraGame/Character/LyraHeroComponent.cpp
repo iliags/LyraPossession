@@ -248,6 +248,11 @@ void ULyraHeroComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//@EditBegin-Ignore this
+	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): BeginPlay"), *PawnName, *FString(__FUNCTION__));
+	//@EditEnd
+
 	// Listen for when the pawn extension component changes init state
 	BindOnActorInitStateChanged(ULyraPawnExtensionComponent::NAME_ActorFeatureName, FGameplayTag(), false);
 
@@ -259,6 +264,11 @@ void ULyraHeroComponent::BeginPlay()
 void ULyraHeroComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	UnregisterInitStateFeature();
+
+	//@EditBegin-Ignore this
+	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): EndPlay"), *PawnName, *FString(__FUNCTION__));
+	//@EditEnd
 
 	Super::EndPlay(EndPlayReason);
 }
