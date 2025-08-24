@@ -106,7 +106,7 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 		// The player state is required.
 		if (!GetPlayerState<ALyraPlayerState>())
 		{
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): No player state"), *PawnName, *FString(__FUNCTION__));
+			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): No player state, returning false"), *PawnName, *FString(__FUNCTION__));
 			return false;
 		}
 
@@ -122,7 +122,7 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 
 			if (!bHasControllerPairedWithPS)
 			{
-				UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Controller has not paired with player state"), *PawnName, *FString(__FUNCTION__));
+				UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Controller has not paired with player state, returning false"), *PawnName, *FString(__FUNCTION__));
 				return false;
 			}
 		}
@@ -138,7 +138,7 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 			// The input component and local player is required when locally controlled.
 			if (!Pawn->InputComponent || !LyraPC || !LyraPC->GetLocalPlayer())
 			{
-				UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): No input component found"), *PawnName, *FString(__FUNCTION__));
+				UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): No input component found, returning false"), *PawnName, *FString(__FUNCTION__));
 				return false;
 			}
 		}
@@ -155,12 +155,12 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 	}
 	else if (CurrentState == LyraGameplayTags::InitState_DataInitialized && DesiredState == LyraGameplayTags::InitState_GameplayReady)
 	{
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Current state is data initialized, desired state is gameplay ready"), *PawnName, *FString(__FUNCTION__));
+		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Current state is data initialized, desired state is gameplay ready, returning true"), *PawnName, *FString(__FUNCTION__));
 		// TODO add ability initialization checks?
 		return true;
 	}
 
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Fell through to default"), *PawnName, *FString(__FUNCTION__));
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Fell through to default returning false"), *PawnName, *FString(__FUNCTION__));
 
 	return false;
 }
