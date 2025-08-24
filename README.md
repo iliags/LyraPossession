@@ -1,22 +1,25 @@
-# LyraPossession
+# Lyra Possession Sample
 
 Game feature sample for the purposes of finding out how to get pawn swapping working in Lyra.
 
-## Current Issues
+## Notes
+
+Due to how this thing has been constructed (and network shenanigans), the standard C++ debugger isn't as useful. Le print-to-console debugging method will probably be the most reliable to pin-point where to use the debugger.
+
+### Current Issues
 
 - Inputs are double-bound
   - Single button press, two input events triggered
   - The character animation plays twice as fast when this happens
 - Abilities don't trigger
   - Physical inputs are triggered, the ASC does not trigger the abilities
-  - Movement usually always works when this occurs
+  - Movement and mouse look almost always works when this occurs
   - Jump *or* crouch won't work
   - All other abilities don't work
 - Inputs are improperly bound
   - Has similar symptoms of abilities not triggering, but another round of upossess/repossess sometimes fixes it
 - Respawn doesn't work on `LyraCharacterWithAbilities`
-
-## Notes
+- The unpossession chain does not fully clean up after itself
 
 ### Edits
 
