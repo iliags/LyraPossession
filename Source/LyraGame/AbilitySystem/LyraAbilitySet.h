@@ -121,7 +121,7 @@ protected:
  *	Non-mutable data asset used to grant gameplay abilities and gameplay effects.
  */
 UCLASS(BlueprintType, Const)
-class ULyraAbilitySet : public UPrimaryDataAsset
+class LYRAGAME_API ULyraAbilitySet : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 

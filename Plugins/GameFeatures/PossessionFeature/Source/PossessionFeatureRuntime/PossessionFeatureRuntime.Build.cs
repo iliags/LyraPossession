@@ -26,6 +26,15 @@ public class PossessionFeatureRuntime : ModuleRules
 			new string[]
 			{
 				"Core",
+				"LyraGame",
+				"ModularGameplay",
+				"AIModule",
+				"GameplayAbilities",
+				"GameplayTags",
+				"CommonGame",
+				"Niagara",
+				"GameplayMessageRuntime",
+				"EnhancedInput",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
