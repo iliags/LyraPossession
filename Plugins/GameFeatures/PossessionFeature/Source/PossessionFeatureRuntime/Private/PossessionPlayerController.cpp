@@ -5,7 +5,6 @@
 
 #include "Character/LyraCharacter.h"
 #include "Character/LyraHeroComponent.h"
-#include "Input/LyraInputComponent.h"
 
 void APossessionPlayerController::OnPossess(APawn* InPawn)
 {
@@ -40,6 +39,7 @@ void APossessionPlayerController::ReapplyInput()
 		{
 			if (InputComponent != nullptr)
 			{
+				// Prevents rebinding on initial possession from Lyra Experience
 				if (HeroComponent->IsReadyToBindInputs())
 				{
 					return;

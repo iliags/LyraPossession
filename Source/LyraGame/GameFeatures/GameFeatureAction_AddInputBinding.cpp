@@ -113,10 +113,12 @@ void UGameFeatureAction_AddInputBinding::HandlePawnExtension(AActor* Actor, FNam
 	{
 		RemoveInputMapping(AsPawn, ActiveData);
 	}
+	//@EditBegin
 	else if ((EventName == ULyraHeroComponent::NAME_RemoveInputsNow))
 	{
 		RemoveInputMappingsStillActive(AsPawn, ActiveData);
 	}
+	//@EditEnd
 	else if ((EventName == UGameFrameworkComponentManager::NAME_ExtensionAdded) || (EventName == ULyraHeroComponent::NAME_BindInputsNow))
 	{
 		AddInputMappingForPlayer(AsPawn, ActiveData);

@@ -53,10 +53,6 @@ public:
 	/** Removes a mode-specific input config if it has been added */
 	UE_API void RemoveAdditionalInputConfig(const ULyraInputConfig* InputConfig);
 
-	//@EditBegin
-	UE_API void RemoveNativeInputs();
-	//@EditEnd
-
 	/** True if this is controlled by a real player and has progressed far enough in initialization where additional input bindings can be added */
 	UE_API bool IsReadyToBindInputs() const;
 	
@@ -83,6 +79,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	UE_API virtual void ResetInputs(APlayerController* PlayerController, bool bResetInputFlag = false);
+
+	UE_API void RemoveNativeInputs();
 	//@EditEnd
 
 protected:
