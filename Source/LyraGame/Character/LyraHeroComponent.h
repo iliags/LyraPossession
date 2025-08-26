@@ -82,7 +82,7 @@ public:
 	UE_API virtual void InitializePlayerInput(UInputComponent* PlayerInputComponent);
 	
 	UFUNCTION(BlueprintCallable)
-	UE_API virtual void ResetInputs(APlayerController* PlayerController, bool bResetNativeInputs, bool bResetInputFlag = false);
+	UE_API virtual void ResetInputs(APlayerController* PlayerController, bool bResetInputFlag = false);
 	//@EditEnd
 
 protected:

@@ -355,13 +355,10 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 					LyraIC->AddInputMappings(InputConfig, Subsystem);
 
 					// This is where we actually bind and input action to a gameplay tag, which means that Gameplay Ability Blueprints will
-					// be triggered directly by these input actions Triggered events. 
-					//@EditBegin
-					//TArray<uint32> BindHandles;
-					//@EditEnd
+					// be triggered directly by these input actions Triggered events.					
 					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding ability actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
-					UE_LOG(LogLyra, Warning, TEXT("%s - %s(): Binding ability actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
-					
+
+					//@EditBegin
 					LyraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
 
 					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding native actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
@@ -370,6 +367,7 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ true, NativeBindHandles);
 					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Crouch, ETriggerEvent::Triggered, this, &ThisClass::Input_Crouch, /*bLogIfNotFound=*/ true, NativeBindHandles);
 					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_AutoRun, ETriggerEvent::Triggered, this, &ThisClass::Input_AutoRun, /*bLogIfNotFound=*/ true, NativeBindHandles);
+					//@EditEnd
 				}
 			}
 		}
@@ -386,7 +384,8 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APawn*>(Pawn), NAME_BindInputsNow);
 }
 
-void ULyraHeroComponent::ResetInputs(APlayerController* PlayerController, bool bResetNativeInputs, const bool bResetInputFlag)
+//@EditBegin
+void ULyraHeroComponent::ResetInputs(APlayerController* PlayerController, const bool bResetInputFlag)
 {
 	const APawn* Pawn = GetPawn<APawn>();
 	if (!Pawn)
@@ -396,66 +395,19 @@ void ULyraHeroComponent::ResetInputs(APlayerController* PlayerController, bool b
 	
 	APlayerController* PC = GetController<APlayerController>();
 	check(PC);
-
-	UE_LOG(LogTemp, Warning, TEXT("%s(): Broadcasting removal"), *FString(__FUNCTION__));
+	
 	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APlayerController*>(PC), NAME_RemoveInputsNow);
 	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APawn*>(Pawn), NAME_RemoveInputsNow);
-	/*const ULocalPlayer* LP = PlayerController->GetLocalPlayer();
-	check(LP);
-
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
-	{
-		if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(GetPawn<APawn>()))
-		{
-			if (const ULyraPawnData* PawnData = PawnExtComp->GetPawnData<ULyraPawnData>())
-			{
-				if (ULyraInputComponent* LyraIC = GetPawn<APawn>()->FindComponentByClass<ULyraInputComponent>())
-				{
-					Subsystem->ClearAllMappings();
-					
-					if (const ULyraInputConfig* InputConfig = PawnData->InputConfig)
-					{
-						LyraIC->RemoveInputMappings(InputConfig, Subsystem);
-					}
-					
-					LyraIC->RemoveBinds(BindHandles);
-
-					if (LyraIC->GetActionEventBindings().Num() > 0)
-					{
-						//Note: Range-based loops might have modifications occur at runtime in network environments
-						const TArray<TUniquePtr<FEnhancedInputActionEventBinding>>& Bindings = LyraIC->GetActionEventBindings();
-						for (int32 i = 0; i < Bindings.Num(); i++)
-						{
-							LyraIC->RemoveBindingByHandle(Bindings[i]->GetHandle());
-						}
-					}
-				}
-			}
-		}
-		
-	}*/
-
-	/*if (bResetNativeInputs)
-	{
-		if (ULyraInputComponent* LyraIC = GetPawn<APawn>()->FindComponentByClass<ULyraInputComponent>())
-		{
-			for (const auto& Binding : LyraIC->GetActionEventBindings())
-			{
-				LyraIC->RemoveBindingByHandle(Binding->GetHandle());
-			}
-		}
-		
-	}*/
 
 	if (bResetInputFlag)
 	{
 		bReadyToBindInputs = false;		
 	}
 }
+//@EditEnd
 
 void ULyraHeroComponent::AddAdditionalInputConfig(const ULyraInputConfig* InputConfig)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s(): Adding additional mapping %s"), *FString(__FUNCTION__), *InputConfig->GetName());
 	const APawn* Pawn = GetPawn<APawn>();
 	if (!Pawn)
 	{
@@ -487,6 +439,7 @@ void ULyraHeroComponent::AddAdditionalInputConfig(const ULyraInputConfig* InputC
 
 void ULyraHeroComponent::RemoveAdditionalInputConfig(const ULyraInputConfig* InputConfig)
 {
+	//@EditBegin
 	const APawn* Pawn = GetPawn<APawn>();
 	if (!Pawn)
 	{
@@ -495,25 +448,26 @@ void ULyraHeroComponent::RemoveAdditionalInputConfig(const ULyraInputConfig* Inp
 	
 	if (ULyraInputComponent* LyraIC = Pawn->FindComponentByClass<ULyraInputComponent>())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s(): Hero comp removing binds"), *FString(__FUNCTION__));
 		LyraIC->RemoveBinds(BindHandles);
 		LyraIC->RemoveBinds(AdditionalBindHandles);
 	}
-	//@TODO: Implement me!
+	//@EditEnd
+	
 	//@EditBegin-Ignore this
 	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Removing additional config %s in unimplemented function"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
+	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Removing additional config %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
 	//@EditEnd
 }
 
+//@EditBegin
 void ULyraHeroComponent::RemoveNativeInputs()
 {
 	if (ULyraInputComponent* LyraIC = GetPawn<APawn>()->FindComponentByClass<ULyraInputComponent>())
 	{
 		LyraIC->RemoveBinds(NativeBindHandles);
-		
 	}
 }
+//@EditEnd
 
 bool ULyraHeroComponent::IsReadyToBindInputs() const
 {
@@ -545,9 +499,7 @@ void ULyraHeroComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
 	{
 		return;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("%s(): "), *FString(__FUNCTION__));
-
+	
 	if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
 	{
 		if (ULyraAbilitySystemComponent* LyraASC = PawnExtComp->GetLyraAbilitySystemComponent())
@@ -658,7 +610,6 @@ void ULyraHeroComponent::Input_Crouch(const FInputActionValue& InputActionValue)
 		//@EditBegin-Ignore this
 		const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
 		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Toggle Crouch"), *PawnName, *FString(__FUNCTION__));
-		UE_LOG(LogTemp, Warning, TEXT("%s(): Crouch"), *FString(__FUNCTION__));
 		//@EditEnd
 		Character->ToggleCrouch();
 	}

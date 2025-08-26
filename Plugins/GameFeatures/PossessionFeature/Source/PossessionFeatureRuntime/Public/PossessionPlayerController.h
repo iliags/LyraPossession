@@ -20,15 +20,5 @@ public:
 
 protected:
 	UFUNCTION()
-	void ResetApplyInput();
-
-private:
-	UPROPERTY()
-	int32 TicksNeeded = 0;
-
-	UPROPERTY()
-	FTimerHandle TimerHandle;
-
-	UPROPERTY()
-	bool bOnce = false;
+	void ReapplyInput();
 };
