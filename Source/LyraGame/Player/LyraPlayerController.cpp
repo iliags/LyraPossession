@@ -148,6 +148,16 @@ ALyraPlayerState* ALyraPlayerController::GetLyraPlayerState() const
 
 ULyraAbilitySystemComponent* ALyraPlayerController::GetLyraAbilitySystemComponent() const
 {
+	//@EditBegin
+	if (const IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(GetPawn()))
+	{
+		if (ULyraAbilitySystemComponent* ASC = Cast<ULyraAbilitySystemComponent>(ASCInterface->GetAbilitySystemComponent()))
+		{
+			return ASC;
+		}
+	}
+	//@EditEnd
+	
 	const ALyraPlayerState* LyraPS = GetLyraPlayerState();
 	return (LyraPS ? LyraPS->GetLyraAbilitySystemComponent() : nullptr);
 }
