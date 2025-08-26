@@ -93,4 +93,7 @@ private:
 	void HandleControllerExtension(AActor* Actor, FName EventName, FGameFeatureStateChangeContext ChangeContext);
 	void AddInputMappingForPlayer(UPlayer* Player, FPerContextData& ActiveData);
 	void RemoveInputMapping(APlayerController* PlayerController, FPerContextData& ActiveData);
+	//@EditBegin
+	void RemoveInputMappingStillActive(APlayerController* PlayerController, FPerContextData& ActiveData);
+	//@EditEnd
 };

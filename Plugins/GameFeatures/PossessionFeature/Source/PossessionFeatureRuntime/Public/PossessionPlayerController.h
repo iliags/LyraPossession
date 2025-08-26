@@ -17,4 +17,18 @@ class POSSESSIONFEATURERUNTIME_API APossessionPlayerController : public ALyraPla
 public:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
+
+protected:
+	UFUNCTION()
+	void ResetApplyInput();
+
+private:
+	UPROPERTY()
+	int32 TicksNeeded = 0;
+
+	UPROPERTY()
+	FTimerHandle TimerHandle;
+
+	UPROPERTY()
+	bool bOnce = false;
 };

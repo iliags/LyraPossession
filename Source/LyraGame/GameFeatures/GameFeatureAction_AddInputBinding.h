@@ -55,5 +55,8 @@ private:
 	void AddInputMappingForPlayer(APawn* Pawn, FPerContextData& ActiveData);
 	void RemoveInputMapping(APawn* Pawn, FPerContextData& ActiveData);
 
+	//@EditBegin
+	void RemoveInputMappingsStillActive(APawn* Pawn, FPerContextData& ActiveData);
+	//@EditEnd
 
 };

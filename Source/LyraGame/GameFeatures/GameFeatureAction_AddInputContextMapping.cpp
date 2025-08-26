@@ -233,14 +233,20 @@ void UGameFeatureAction_AddInputContextMapping::HandleControllerExtension(AActor
 	FPerContextData& ActiveData = ContextData.FindOrAdd(ChangeContext);
 
 	// TODO Why does this code mix and match controllers and local players? ControllersAddedTo is never modified
+	//@EditBegin
 	if ((EventName == UGameFrameworkComponentManager::NAME_ExtensionRemoved) || (EventName == UGameFrameworkComponentManager::NAME_ReceiverRemoved))
 	{
 		RemoveInputMapping(AsController, ActiveData);
+	}
+	else if ((EventName == ULyraHeroComponent::NAME_RemoveInputsNow))
+	{
+		RemoveInputMappingStillActive(AsController, ActiveData);
 	}
 	else if ((EventName == UGameFrameworkComponentManager::NAME_ExtensionAdded) || (EventName == ULyraHeroComponent::NAME_BindInputsNow))
 	{
 		AddInputMappingForPlayer(AsController->GetLocalPlayer(), ActiveData);
 	}
+	//@EditEnd
 }
 
 void UGameFeatureAction_AddInputContextMapping::AddInputMappingForPlayer(UPlayer* Player, FPerContextData& ActiveData)
@@ -283,4 +289,24 @@ void UGameFeatureAction_AddInputContextMapping::RemoveInputMapping(APlayerContro
 	ActiveData.ControllersAddedTo.Remove(PlayerController);
 }
 
+//@EditBegin
+void UGameFeatureAction_AddInputContextMapping::RemoveInputMappingStillActive(APlayerController* PlayerController,
+	FPerContextData& ActiveData)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s(): Removing Input Mappings"), *FString(__FUNCTION__));
+	if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+		{
+			for (const FInputMappingContextAndPriority& Entry : InputMappings)
+			{
+				if (const UInputMappingContext* IMC = Entry.InputMapping.Get())
+				{
+					InputSystem->RemoveMappingContext(IMC);
+				}
+			}
+		}
+	}
+}
+//@EditEnd
 #undef LOCTEXT_NAMESPACE

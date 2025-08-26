@@ -113,6 +113,10 @@ void UGameFeatureAction_AddInputBinding::HandlePawnExtension(AActor* Actor, FNam
 	{
 		RemoveInputMapping(AsPawn, ActiveData);
 	}
+	else if ((EventName == ULyraHeroComponent::NAME_RemoveInputsNow))
+	{
+		RemoveInputMappingsStillActive(AsPawn, ActiveData);
+	}
 	else if ((EventName == UGameFrameworkComponentManager::NAME_ExtensionAdded) || (EventName == ULyraHeroComponent::NAME_BindInputsNow))
 	{
 		AddInputMappingForPlayer(AsPawn, ActiveData);
@@ -171,5 +175,30 @@ void UGameFeatureAction_AddInputBinding::RemoveInputMapping(APawn* Pawn, FPerCon
 	ActiveData.PawnsAddedTo.Remove(Pawn);
 }
 
+//@EditBegin
+void UGameFeatureAction_AddInputBinding::RemoveInputMappingsStillActive(APawn* Pawn, FPerContextData& ActiveData)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s(): Removing Input Bindings"), *FString(__FUNCTION__));
+	APlayerController* PlayerController = Cast<APlayerController>(Pawn->GetController());
+
+	if (ULocalPlayer* LocalPlayer = PlayerController ? PlayerController->GetLocalPlayer() : nullptr)
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+		{
+			if (ULyraHeroComponent* HeroComponent = Pawn->FindComponentByClass<ULyraHeroComponent>())
+			{
+				for (const TSoftObjectPtr<const ULyraInputConfig>& Entry : InputConfigs)
+				{
+					if (const ULyraInputConfig* InputConfig = Entry.Get())
+					{
+						HeroComponent->RemoveAdditionalInputConfig(InputConfig);
+						HeroComponent->RemoveNativeInputs();
+					}
+				}
+			}
+		}
+	}
+}
+//@EditEnd
 #undef LOCTEXT_NAMESPACE
 

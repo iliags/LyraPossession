@@ -53,11 +53,18 @@ public:
 	/** Removes a mode-specific input config if it has been added */
 	UE_API void RemoveAdditionalInputConfig(const ULyraInputConfig* InputConfig);
 
+	//@EditBegin
+	UE_API void RemoveNativeInputs();
+	//@EditEnd
+
 	/** True if this is controlled by a real player and has progressed far enough in initialization where additional input bindings can be added */
 	UE_API bool IsReadyToBindInputs() const;
 	
 	/** The name of the extension event sent via UGameFrameworkComponentManager when ability inputs are ready to bind */
 	static UE_API const FName NAME_BindInputsNow;
+
+	/** The name of the extension event sent via UGameFrameworkComponentManager when ability inputs should be removed */
+	static UE_API const FName NAME_RemoveInputsNow;
 
 	/** The name of this component-implemented feature */
 	static UE_API const FName NAME_ActorFeatureName;
@@ -71,9 +78,11 @@ public:
 	//~ End IGameFrameworkInitStateInterface interface
 
 	//@EditBegin
-	UE_API virtual void InitializePlayerInput(UInputComponent* PlayerInputComponent);
 	UFUNCTION(BlueprintCallable)
-	UE_API virtual void ResetInputs(APlayerController* PlayerController);
+	UE_API virtual void InitializePlayerInput(UInputComponent* PlayerInputComponent);
+	
+	UFUNCTION(BlueprintCallable)
+	UE_API virtual void ResetInputs(APlayerController* PlayerController, bool bResetNativeInputs, bool bResetInputFlag = false);
 	//@EditEnd
 
 protected:
@@ -97,6 +106,12 @@ protected:
 	//@EditBegin
 	UPROPERTY()
 	TArray<uint32> BindHandles;
+
+	UPROPERTY()
+	TArray<uint32> NativeBindHandles;
+
+	UPROPERTY()
+	TArray<uint32> AdditionalBindHandles;
 	//@EditEnd
 	
 	UPROPERTY(EditAnywhere)
