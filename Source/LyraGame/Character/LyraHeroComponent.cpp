@@ -21,6 +21,7 @@
 #include "Camera/LyraCameraMode.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "InputMappingContext.h"
+#include "Conditions/MovieSceneCondition.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraHeroComponent)
 
@@ -191,7 +192,21 @@ void ULyraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* M
 
 			// The player state holds the persistent data for this player (state that persists across deaths and multiple pawns).
 			// The ability system component and attribute sets live on the player state.
-			PawnExtComp->InitializeAbilitySystem(LyraPS->GetLyraAbilitySystemComponent(), LyraPS);
+			//PawnExtComp->InitializeAbilitySystem(LyraPS->GetLyraAbilitySystemComponent(), LyraPS);
+
+			//@EditBegin
+			if (const IAbilitySystemInterface* PawnASC = Cast<IAbilitySystemInterface>(Pawn))
+			{
+				if (ULyraAbilitySystemComponent* ASC = Cast<ULyraAbilitySystemComponent>(PawnASC->GetAbilitySystemComponent()))
+				{
+					PawnExtComp->InitializeAbilitySystem(ASC, Pawn);
+				}
+				else
+				{
+					PawnExtComp->InitializeAbilitySystem(LyraPS->GetLyraAbilitySystemComponent(), LyraPS);
+				}
+			}
+			//@EditEnd
 		}
 
 		if (ALyraPlayerController* LyraPC = GetController<ALyraPlayerController>())
@@ -340,8 +355,12 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 
 					// This is where we actually bind and input action to a gameplay tag, which means that Gameplay Ability Blueprints will
 					// be triggered directly by these input actions Triggered events. 
-					TArray<uint32> BindHandles;
+					//@EditBegin
+					//TArray<uint32> BindHandles;
+					//@EditEnd
 					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding ability actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
+					UE_LOG(LogLyra, Warning, TEXT("%s - %s(): Binding ability actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
+					
 					LyraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
 
 					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding native actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
@@ -366,10 +385,46 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APawn*>(Pawn), NAME_BindInputsNow);
 }
 
+void ULyraHeroComponent::ResetInputs(APlayerController* PlayerController)
+{
+	const ULocalPlayer* LP = PlayerController->GetLocalPlayer();
+	check(LP);
+
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+	{
+		if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(GetPawn<APawn>()))
+		{
+			if (const ULyraPawnData* PawnData = PawnExtComp->GetPawnData<ULyraPawnData>())
+			{
+				if (ULyraInputComponent* LyraIC = GetPawn<APawn>()->FindComponentByClass<ULyraInputComponent>())
+				{
+					if (const ULyraInputConfig* InputConfig = PawnData->InputConfig)
+					{
+						LyraIC->RemoveInputMappings(InputConfig, Subsystem);
+					}
+					
+					LyraIC->RemoveBinds(BindHandles);
+
+					if (LyraIC->GetActionEventBindings().Num() > 0)
+					{
+						//Note: Range-based loops might have modifications occur at runtime in network environments
+						const TArray<TUniquePtr<FEnhancedInputActionEventBinding>>& Bindings = LyraIC->GetActionEventBindings();
+						for (int32 i = 0; i < Bindings.Num(); i++)
+						{
+							LyraIC->RemoveBindingByHandle(Bindings[i]->GetHandle());
+						}
+					}
+				}
+			}
+		}
+		Subsystem->ClearAllMappings();
+	}
+	
+	bReadyToBindInputs = false;
+}
+
 void ULyraHeroComponent::AddAdditionalInputConfig(const ULyraInputConfig* InputConfig)
 {
-	TArray<uint32> BindHandles;
-
 	const APawn* Pawn = GetPawn<APawn>();
 	if (!Pawn)
 	{
@@ -438,6 +493,8 @@ void ULyraHeroComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
 	{
 		return;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("%s(): "), *FString(__FUNCTION__));
 
 	if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
 	{

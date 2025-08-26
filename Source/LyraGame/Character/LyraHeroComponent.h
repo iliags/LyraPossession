@@ -70,13 +70,17 @@ public:
 	UE_API virtual void CheckDefaultInitialization() override;
 	//~ End IGameFrameworkInitStateInterface interface
 
+	//@EditBegin
+	UE_API virtual void InitializePlayerInput(UInputComponent* PlayerInputComponent);
+	UFUNCTION(BlueprintCallable)
+	UE_API virtual void ResetInputs(APlayerController* PlayerController);
+	//@EditEnd
+
 protected:
 
 	UE_API virtual void OnRegister() override;
 	UE_API virtual void BeginPlay() override;
 	UE_API virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	UE_API virtual void InitializePlayerInput(UInputComponent* PlayerInputComponent);
 
 	UE_API void Input_AbilityInputTagPressed(FGameplayTag InputTag);
 	UE_API void Input_AbilityInputTagReleased(FGameplayTag InputTag);
@@ -90,6 +94,10 @@ protected:
 	UE_API TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
 
 protected:
+	//@EditBegin
+	UPROPERTY()
+	TArray<uint32> BindHandles;
+	//@EditEnd
 	
 	UPROPERTY(EditAnywhere)
 	TArray<FInputMappingContextAndPriority> DefaultInputMappings;
