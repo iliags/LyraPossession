@@ -4,6 +4,8 @@ Game feature sample for the purposes of finding out how to get pawn swapping wor
 
 ## Notes
 
+The player controller in the game feature has 1-4 keys bound to swap between characters, E is a Manny only ability, R is a Quinn only ability.
+
 ### Current Issues
 
 - LyraCharacters have not been tested
