@@ -8,9 +8,18 @@ Game feature sample for the purposes of finding out how to get pawn swapping wor
 
 - LyraCharacters have not been tested
 - LyraCharacterWithAbilities
-  - Death and respawning have not been tested
   - Overlapping input sets which are applied per-character has not been tested
     - Overlapping inputs will not work if applied to all characters
+
+### Non-Issues
+
+The testing environment does not have quality of life features implemented so some "bugs" will occur. The fixes for these are specific to each game and don't need to be implemented in this project.
+
+- On death, LyraCharacterWithAbilities hangs around for a bit.
+  - The character isn't hidden fully and it takes the GC a second or two to cleanup
+- The default pawn data spawns instead of the correct pawn data on death.
+  - There are a few ways to handle this, but it's mostly specific to each game.
+  - This might be fixed later, but for now at least a character spawns with the correct abilities/inputs.
 
 ### Edits
 
