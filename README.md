@@ -13,13 +13,16 @@ Game feature sample for the purposes of finding out how to get pawn swapping wor
 
 ### Non-Issues
 
-The testing environment does not have quality of life features implemented so some "bugs" will occur. The fixes for these are specific to each game and don't need to be implemented in this project.
+The testing environment does not have quality of life features implemented so some "bugs" will occur. The fixes for these are specific to each game and don't need to be implemented in this project. Some bugs only occur in networked environments but work properly locally. This is an issue with this project, not necessarily Lyra.
 
 - On death, LyraCharacterWithAbilities hangs around for a bit.
   - The character isn't hidden fully and it takes the GC a second or two to cleanup
 - The default pawn data spawns instead of the correct pawn data on death.
   - There are a few ways to handle this, but it's mostly specific to each game.
   - This might be fixed later, but for now at least a character spawns with the correct abilities/inputs.
+- Swapping character retains previous pawn's rotation
+- Animations continue to play after swapping but snap back on repossession
+  - Might look into this, it's probably due to the character not having a valid controller after the unpossession to clear out previous inputs.
 
 ### Edits
 
