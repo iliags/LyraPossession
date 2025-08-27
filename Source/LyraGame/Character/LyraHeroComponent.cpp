@@ -17,7 +17,6 @@
 #include "Camera/LyraCameraComponent.h"
 #include "LyraGameplayTags.h"
 #include "Components/GameFrameworkComponentManager.h"
-#include "PlayerMappableInputConfig.h"
 #include "Camera/LyraCameraMode.h"
 #include "UserSettings/EnhancedInputUserSettings.h"
 #include "InputMappingContext.h"
@@ -70,11 +69,6 @@ void ULyraHeroComponent::OnRegister()
 	}
 	else
 	{
-		//@EditBegin
-		const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Registering"), *PawnName, *FString(__FUNCTION__));
-		//@EditEnd
-		
 		// Register with the init state system early, this will only work if this is a game world
 		RegisterInitStateFeature();
 	}
@@ -85,37 +79,26 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 	check(Manager);
 
 	APawn* Pawn = GetPawn<APawn>();
-
-	//@EditBegin-Ignore this
-	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Entry"), *PawnName, *FString(__FUNCTION__));
-	//@EditEnd
-
+	
 	if (!CurrentState.IsValid() && DesiredState == LyraGameplayTags::InitState_Spawned)
 	{
-		
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Current state not valid, InitStat_Spawned"), *PawnName, *FString(__FUNCTION__));
 		// As long as we have a real pawn, let us transition
 		if (Pawn)
 		{
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Valid pawn, returning true"), *PawnName, *FString(__FUNCTION__));
 			return true;
 		}
 	}
 	else if (CurrentState == LyraGameplayTags::InitState_Spawned && DesiredState == LyraGameplayTags::InitState_DataAvailable)
 	{
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Current state is spawned, desired data is available"), *PawnName, *FString(__FUNCTION__));
 		// The player state is required.
 		if (!GetPlayerState<ALyraPlayerState>())
 		{
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): No player state, returning false"), *PawnName, *FString(__FUNCTION__));
 			return false;
 		}
 
 		// If we're authority or autonomous, we need to wait for a controller with registered ownership of the player state.
 		if (Pawn->GetLocalRole() != ROLE_SimulatedProxy)
 		{
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Not simulated proxy"), *PawnName, *FString(__FUNCTION__));
 			AController* Controller = GetController<AController>();
 
 			const bool bHasControllerPairedWithPS = (Controller != nullptr) && \
@@ -124,7 +107,6 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 
 			if (!bHasControllerPairedWithPS)
 			{
-				UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Controller has not paired with player state, returning false"), *PawnName, *FString(__FUNCTION__));
 				return false;
 			}
 		}
@@ -134,13 +116,11 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 
 		if (bIsLocallyControlled && !bIsBot)
 		{
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Locally controlled and not a bot"), *PawnName, *FString(__FUNCTION__));
 			ALyraPlayerController* LyraPC = GetController<ALyraPlayerController>();
 
 			// The input component and local player is required when locally controlled.
 			if (!Pawn->InputComponent || !LyraPC || !LyraPC->GetLocalPlayer())
 			{
-				UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): No input component found, returning false"), *PawnName, *FString(__FUNCTION__));
 				return false;
 			}
 		}
@@ -149,7 +129,6 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 	}
 	else if (CurrentState == LyraGameplayTags::InitState_DataAvailable && DesiredState == LyraGameplayTags::InitState_DataInitialized)
 	{
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Current state is data available, desired state is data initialized"), *PawnName, *FString(__FUNCTION__));
 		// Wait for player state and extension component
 		ALyraPlayerState* LyraPS = GetPlayerState<ALyraPlayerState>();
 
@@ -157,26 +136,17 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 	}
 	else if (CurrentState == LyraGameplayTags::InitState_DataInitialized && DesiredState == LyraGameplayTags::InitState_GameplayReady)
 	{
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Current state is data initialized, desired state is gameplay ready, returning true"), *PawnName, *FString(__FUNCTION__));
 		// TODO add ability initialization checks?
 		return true;
 	}
-
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Fell through to default returning false"), *PawnName, *FString(__FUNCTION__));
 
 	return false;
 }
 
 void ULyraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState)
 {
-	//@EditBegin
-	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Entry"), *PawnName, *FString(__FUNCTION__));
-	//@EditEnd
-	
 	if (CurrentState == LyraGameplayTags::InitState_DataAvailable && DesiredState == LyraGameplayTags::InitState_DataInitialized)
 	{
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): InitState_DataAvailable, desired Data Initialized"), *PawnName, *FString(__FUNCTION__));
 		APawn* Pawn = GetPawn<APawn>();
 		ALyraPlayerState* LyraPS = GetPlayerState<ALyraPlayerState>();
 		if (!ensure(Pawn && LyraPS))
@@ -188,7 +158,6 @@ void ULyraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* M
 
 		if (ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
 		{
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Grabbing pawn data from PawnExtComp and initializing ASC"), *PawnName, *FString(__FUNCTION__));
 			PawnData = PawnExtComp->GetPawnData<ULyraPawnData>();
 
 			// The player state holds the persistent data for this player (state that persists across deaths and multiple pawns).
@@ -214,7 +183,6 @@ void ULyraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* M
 		{
 			if (Pawn->InputComponent != nullptr)
 			{
-				UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Initializing player input"), *PawnName, *FString(__FUNCTION__));
 				InitializePlayerInput(Pawn->InputComponent);
 			}
 		}
@@ -224,13 +192,10 @@ void ULyraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* M
 		{
 			if (ULyraCameraComponent* CameraComponent = ULyraCameraComponent::FindCameraComponent(Pawn))
 			{
-				UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Camera mode delegate binding"), *PawnName, *FString(__FUNCTION__));
 				CameraComponent->DetermineCameraModeDelegate.BindUObject(this, &ThisClass::DetermineCameraMode);
 			}
 		}
 	}
-
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Exit"), *PawnName, *FString(__FUNCTION__));
 }
 
 void ULyraHeroComponent::OnActorInitStateChanged(const FActorInitStateChangedParams& Params)
@@ -239,10 +204,6 @@ void ULyraHeroComponent::OnActorInitStateChanged(const FActorInitStateChangedPar
 	{
 		if (Params.FeatureState == LyraGameplayTags::InitState_DataInitialized)
 		{
-			//@EditBegin-Ignore this
-			const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Calling CheckDefaultInitialization"), *PawnName, *FString(__FUNCTION__));
-			//@EditEnd
 			// If the extension component says all all other components are initialized, try to progress to next state
 			CheckDefaultInitialization();
 		}
@@ -252,11 +213,6 @@ void ULyraHeroComponent::OnActorInitStateChanged(const FActorInitStateChangedPar
 void ULyraHeroComponent::CheckDefaultInitialization()
 {
 	static const TArray<FGameplayTag> StateChain = { LyraGameplayTags::InitState_Spawned, LyraGameplayTags::InitState_DataAvailable, LyraGameplayTags::InitState_DataInitialized, LyraGameplayTags::InitState_GameplayReady };
-
-	//@EditBegin-Ignore this
-	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Continuing init state chain"), *PawnName, *FString(__FUNCTION__));
-	//@EditEnd
 	
 	// This will try to progress from spawned (which is only set in BeginPlay) through the data initialization stages until it gets to gameplay ready
 	ContinueInitStateChain(StateChain);
@@ -265,11 +221,6 @@ void ULyraHeroComponent::CheckDefaultInitialization()
 void ULyraHeroComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//@EditBegin-Ignore this
-	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): BeginPlay"), *PawnName, *FString(__FUNCTION__));
-	//@EditEnd
 
 	// Listen for when the pawn extension component changes init state
 	BindOnActorInitStateChanged(ULyraPawnExtensionComponent::NAME_ActorFeatureName, FGameplayTag(), false);
@@ -282,12 +233,7 @@ void ULyraHeroComponent::BeginPlay()
 void ULyraHeroComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	UnregisterInitStateFeature();
-
-	//@EditBegin-Ignore this
-	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): EndPlay"), *PawnName, *FString(__FUNCTION__));
-	//@EditEnd
-
+	
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -312,11 +258,6 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 
 	Subsystem->ClearAllMappings();
 
-	//@EditBegin-Ignore this
-	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Got references and cleared mappings"), *PawnName, *FString(__FUNCTION__));
-	//@EditEnd
-
 	if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
 	{
 		if (const ULyraPawnData* PawnData = PawnExtComp->GetPawnData<ULyraPawnData>())
@@ -331,7 +272,6 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 						{
 							if (UEnhancedInputUserSettings* Settings = Subsystem->GetUserSettings())
 							{
-								UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Registering IMC %s"), *PawnName, *FString(__FUNCTION__), *IMC->GetName());
 								Settings->RegisterInputMappingContext(IMC);
 							}
 							
@@ -339,7 +279,6 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 							Options.bIgnoreAllPressedKeysUntilRelease = false;
 							// Actually add the config to the local player							
 							Subsystem->AddMappingContext(IMC, Mapping.Priority, Options);
-							UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Adding IMC to mapping context"), *PawnName, *FString(__FUNCTION__));
 						}
 					}
 				}
@@ -350,18 +289,15 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 				ULyraInputComponent* LyraIC = Cast<ULyraInputComponent>(PlayerInputComponent);
 				if (ensureMsgf(LyraIC, TEXT("Unexpected Input Component class! The Gameplay Abilities will not be bound to their inputs. Change the input component to ULyraInputComponent or a subclass of it.")))
 				{
-					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Adding input mappings to IC"), *PawnName, *FString(__FUNCTION__));
 					// Add the key mappings that may have been set by the player
 					LyraIC->AddInputMappings(InputConfig, Subsystem);
 
 					// This is where we actually bind and input action to a gameplay tag, which means that Gameplay Ability Blueprints will
 					// be triggered directly by these input actions Triggered events.					
-					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding ability actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
 
 					//@EditBegin
 					LyraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ BindHandles);
 
-					UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding native actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
 					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, /*bLogIfNotFound=*/ true, NativeBindHandles);
 					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, /*bLogIfNotFound=*/ true, NativeBindHandles);
 					LyraIC->BindNativeAction(InputConfig, LyraGameplayTags::InputTag_Look_Stick, ETriggerEvent::Triggered, this, &ThisClass::Input_LookStick, /*bLogIfNotFound=*/ true, NativeBindHandles);
@@ -375,11 +311,9 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 
 	if (ensure(!bReadyToBindInputs))
 	{
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Setting bReadyToBindInputs to True"), *PawnName, *FString(__FUNCTION__));
 		bReadyToBindInputs = true;
 	}
 
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Sending GameFrameworkComponentExtension events"), *PawnName, *FString(__FUNCTION__));
 	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APlayerController*>(PC), NAME_BindInputsNow);
 	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APawn*>(Pawn), NAME_BindInputsNow);
 }
@@ -428,10 +362,6 @@ void ULyraHeroComponent::AddAdditionalInputConfig(const ULyraInputConfig* InputC
 		ULyraInputComponent* LyraIC = Pawn->FindComponentByClass<ULyraInputComponent>();
 		if (ensureMsgf(LyraIC, TEXT("Unexpected Input Component class! The Gameplay Abilities will not be bound to their inputs. Change the input component to ULyraInputComponent or a subclass of it.")))
 		{
-			//@EditBegin-Ignore this
-			const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Binding additional ability actions for %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
-			//@EditEnd
 			LyraIC->BindAbilityActions(InputConfig, this, &ThisClass::Input_AbilityInputTagPressed, &ThisClass::Input_AbilityInputTagReleased, /*out*/ AdditionalBindHandles);
 		}
 	}
@@ -451,11 +381,6 @@ void ULyraHeroComponent::RemoveAdditionalInputConfig(const ULyraInputConfig* Inp
 		LyraIC->RemoveBinds(BindHandles);
 		LyraIC->RemoveBinds(AdditionalBindHandles);
 	}
-	//@EditEnd
-	
-	//@EditBegin-Ignore this
-	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-	UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Removing additional config %s"), *PawnName, *FString(__FUNCTION__), *InputConfig->GetName());
 	//@EditEnd
 }
 
@@ -482,10 +407,6 @@ void ULyraHeroComponent::Input_AbilityInputTagPressed(FGameplayTag InputTag)
 		{
 			if (ULyraAbilitySystemComponent* LyraASC = PawnExtComp->GetLyraAbilitySystemComponent())
 			{
-				//@EditBegin-Ignore this
-				const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-				UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Ability input pressed: %s"), *PawnName, *FString(__FUNCTION__), *InputTag.ToString());
-				//@EditEnd
 				LyraASC->AbilityInputTagPressed(InputTag);
 			}
 		}	
@@ -504,10 +425,6 @@ void ULyraHeroComponent::Input_AbilityInputTagReleased(FGameplayTag InputTag)
 	{
 		if (ULyraAbilitySystemComponent* LyraASC = PawnExtComp->GetLyraAbilitySystemComponent())
 		{
-			//@EditBegin-Ignore this
-			const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Ability input released: %s"), *PawnName, *FString(__FUNCTION__), *InputTag.ToString());
-			//@EditEnd
 			LyraASC->AbilityInputTagReleased(InputTag);
 		}
 	}
@@ -517,15 +434,10 @@ void ULyraHeroComponent::Input_Move(const FInputActionValue& InputActionValue)
 {
 	APawn* Pawn = GetPawn<APawn>();
 	AController* Controller = Pawn ? Pawn->GetController() : nullptr;
-
-	//@EditBegin-Ignore this
-	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-	//@EditEnd
-
+	
 	// If the player has attempted to move again then cancel auto running
 	if (ALyraPlayerController* LyraController = Cast<ALyraPlayerController>(Controller))
 	{
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Disabling auto-run"), *PawnName, *FString(__FUNCTION__));
 		LyraController->SetIsAutoRunning(false);
 	}
 	
@@ -536,14 +448,12 @@ void ULyraHeroComponent::Input_Move(const FInputActionValue& InputActionValue)
 
 		if (Value.X != 0.0f)
 		{
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Adding X input"), *PawnName, *FString(__FUNCTION__));
 			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
 			Pawn->AddMovementInput(MovementDirection, Value.X);
 		}
 
 		if (Value.Y != 0.0f)
 		{
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Adding Y input"), *PawnName, *FString(__FUNCTION__));
 			const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
 			Pawn->AddMovementInput(MovementDirection, Value.Y);
 		}
@@ -558,22 +468,16 @@ void ULyraHeroComponent::Input_LookMouse(const FInputActionValue& InputActionVal
 	{
 		return;
 	}
-
-	//@EditBegin-Ignore this
-	const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-	//@EditEnd
 	
 	const FVector2D Value = InputActionValue.Get<FVector2D>();
 
 	if (Value.X != 0.0f)
 	{
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Adding Yaw input"), *PawnName, *FString(__FUNCTION__));
 		Pawn->AddControllerYawInput(Value.X);
 	}
 
 	if (Value.Y != 0.0f)
 	{
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Adding Pitch input"), *PawnName, *FString(__FUNCTION__));
 		Pawn->AddControllerPitchInput(Value.Y);
 	}
 }
@@ -607,10 +511,6 @@ void ULyraHeroComponent::Input_Crouch(const FInputActionValue& InputActionValue)
 {
 	if (ALyraCharacter* Character = GetPawn<ALyraCharacter>())
 	{
-		//@EditBegin-Ignore this
-		const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-		UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Toggle Crouch"), *PawnName, *FString(__FUNCTION__));
-		//@EditEnd
 		Character->ToggleCrouch();
 	}
 }
@@ -621,10 +521,6 @@ void ULyraHeroComponent::Input_AutoRun(const FInputActionValue& InputActionValue
 	{
 		if (ALyraPlayerController* Controller = Cast<ALyraPlayerController>(Pawn->GetController()))
 		{
-			//@EditBegin-Ignore this
-			const FString PawnName = GetPawn<APawn>() != nullptr ? GetPawn<APawn>()->GetName() : FString("None");
-			UE_VLOG(this, LogLyra, VeryVerbose, TEXT("%s - %s(): Toggle auto running"), *PawnName, *FString(__FUNCTION__));
-			//@EditEnd
 			// Toggle auto running
 			Controller->SetIsAutoRunning(!Controller->GetIsAutoRunning());
 		}	
