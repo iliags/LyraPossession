@@ -29,8 +29,10 @@ public:
 	void AddInputMappings(const ULyraInputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubsystem) const;
 	void RemoveInputMappings(const ULyraInputConfig* InputConfig, UEnhancedInputLocalPlayerSubsystem* InputSubsystem) const;
 
+    //@EditBegin
 	template<class UserClass, typename FuncType>
 	void BindNativeAction(const ULyraInputConfig* InputConfig, const FGameplayTag& InputTag, ETriggerEvent TriggerEvent, UserClass* Object, FuncType Func, bool bLogIfNotFound, TArray<uint32>& BindHandles);
+	//@EditEnd
 
 	template<class UserClass, typename PressedFuncType, typename ReleasedFuncType>
 	void BindAbilityActions(const ULyraInputConfig* InputConfig, UserClass* Object, PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc, TArray<uint32>& BindHandles);
@@ -39,6 +41,7 @@ public:
 };
 
 
+//@EditBegin
 template<class UserClass, typename FuncType>
 void ULyraInputComponent::BindNativeAction(const ULyraInputConfig* InputConfig, const FGameplayTag& InputTag, ETriggerEvent TriggerEvent, UserClass* Object, FuncType Func, bool bLogIfNotFound, TArray<uint32>& BindHandles)
 {
@@ -48,6 +51,7 @@ void ULyraInputComponent::BindNativeAction(const ULyraInputConfig* InputConfig, 
 		BindHandles.Add(BindAction(IA, TriggerEvent, Object, Func).GetHandle());
 	}
 }
+//@EditEnd
 
 template<class UserClass, typename PressedFuncType, typename ReleasedFuncType>
 void ULyraInputComponent::BindAbilityActions(const ULyraInputConfig* InputConfig, UserClass* Object, PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc, TArray<uint32>& BindHandles)
