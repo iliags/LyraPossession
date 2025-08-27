@@ -180,7 +180,6 @@ void UGameFeatureAction_AddInputBinding::RemoveInputMapping(APawn* Pawn, FPerCon
 //@EditBegin
 void UGameFeatureAction_AddInputBinding::RemoveInputMappingsStillActive(APawn* Pawn, FPerContextData& ActiveData)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s(): Removing Input Bindings"), *FString(__FUNCTION__));
 	APlayerController* PlayerController = Cast<APlayerController>(Pawn->GetController());
 
 	if (ULocalPlayer* LocalPlayer = PlayerController ? PlayerController->GetLocalPlayer() : nullptr)

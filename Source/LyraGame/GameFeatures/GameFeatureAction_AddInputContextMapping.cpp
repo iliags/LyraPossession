@@ -293,7 +293,6 @@ void UGameFeatureAction_AddInputContextMapping::RemoveInputMapping(APlayerContro
 void UGameFeatureAction_AddInputContextMapping::RemoveInputMappingStillActive(APlayerController* PlayerController,
 	FPerContextData& ActiveData)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s(): Removing Input Mappings"), *FString(__FUNCTION__));
 	if (ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer())
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
