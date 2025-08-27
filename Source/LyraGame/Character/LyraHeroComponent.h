@@ -74,12 +74,13 @@ public:
 	//~ End IGameFrameworkInitStateInterface interface
 
 	//@EditBegin
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Lyra|Hero")
 	UE_API virtual void InitializePlayerInput(UInputComponent* PlayerInputComponent);
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category="Lyra|Hero")
 	UE_API virtual void ResetInputs(APlayerController* PlayerController, bool bResetInputFlag = false);
 
+	UFUNCTION(BlueprintCallable, Category="Lyra|Hero")
 	UE_API void RemoveNativeInputs();
 	//@EditEnd
 
