@@ -35,7 +35,9 @@ namespace LyraHero
 };
 
 const FName ULyraHeroComponent::NAME_BindInputsNow("BindInputsNow");
+//@EditBegin
 const FName ULyraHeroComponent::NAME_RemoveInputsNow("RemoveInputsNow");
+//@EditEnd
 const FName ULyraHeroComponent::NAME_ActorFeatureName("Hero");
 
 ULyraHeroComponent::ULyraHeroComponent(const FObjectInitializer& ObjectInitializer)
